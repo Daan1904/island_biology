@@ -181,16 +181,134 @@ data_list[2]
 library(DAISIE)
 library(ape)
 
+rm(list = ls())
+
 ##Load and visualise Galapágos bird data
-load(file = "C:/Users/daank/OneDrive - University of Twente/Documents/Rijksuniversiteit Groningen/Year 1 - 24-25/Island Biology/Practicals/Practical 2 - DAISIE/galapagos_datalist.Rdata")
+#load(file = "C:/Users/daank/OneDrive - University of Twente/Documents/Rijksuniversiteit Groningen/Year 1 - 24-25/Island Biology/Practicals/Practical 2 - DAISIE/galapagos_datalist.Rdata")
 
 #View data list
 galapagos_datalist
 View(galapagos_datalist)
 ?Galapagos_datalist 
 
+galapagos_datalist[[1]]
+#> $island_age
+#> [1] 4
+#> 
+#> $not_present
+#> [1] 992
 
+#To view just the Mimus colonisation
+galapagos_datalist[[4]]
+#> $colonist_name
+#> [1] "Mimus"
+#> 
+#> $branching_times
+#> [1] 4.00000 3.99999 3.68000 2.93000 0.29000
+#> 
+#> $stac
+#> [1] 6
+#> 
+#> $missing_species
+#> [1] 0
+#> 
+#> $type1or2
+#> [1] 1
 
+#Visualise Galápagos data
+#Reset the margins of the plot window, this gives the default options
+dev.off()
+
+DAISIE_plot_island(galapagos_datalist)
+
+#Plot age versus diversity
+DAISIE_plot_age_diversity(galapagos_datalist)
+
+##Fitting DAISIE models
+#Fit a full DAISIE model (M1)
+M1_results <- DAISIE_ML(
+  datalist = galapagos_datalist,
+  initparsopt = c(1.5,1.1,20,0.009,1.1),
+  ddmodel = 11,
+  idparsopt = 1:5,
+  parsfix = NULL,
+  idparsfix = NULL)
+
+M1_results
+#>   lambda_c       mu       K       gamma     lambda_a    loglik df conv
+#> 1 1.258226 1.136924 9968506 0.004957378 1.251793e-06 -84.78145  5    0
+
+#Fit model with no carrying-capacity (M2) (since very high in M1, make it a free parameter in this model)
+M2_results <- DAISIE_ML(
+  datalist = galapagos_datalist,
+  initparsopt = c(1.5,1.1,0.009,1.1),
+  idparsopt = c(1,2,4,5),
+  parsfix = Inf,
+  idparsfix = 3,
+  ddmodel = 0)
+
+M2_results
+#>   lambda_c       mu   K      gamma     lambda_a    loglik df conv
+#> 1 1.264389 1.149378 Inf 0.00505558 1.662578e-05 -84.78088  4    0
+
+#Fit model with no carrying capacity AND no anagenesis (M3) (since anagenesis (labda_a) very low in M2)
+M3_results <- DAISIE_ML(
+  datalist = galapagos_datalist,
+  initparsopt = c(1.5,1.1,0.009),
+  idparsopt = c(1,2,4),
+  parsfix = c(Inf,0),
+  idparsfix = c(3,5),
+  ddmodel = 0)
+
+M3_results
+#>   lambda_c       mu   K       gamma lambda_a    loglik df conv
+#> 1 1.263034 1.146225 Inf 0.005040353        0 -84.78082  3    0
+
+#Select the best model using AIC
+#Create new function to compute AIC values base on the likelihood values and number of parameters for each model
+AIC_compare <- function(LogLik,k){
+  aic <- (2 * k) - (2 * LogLik)
+  return(aic)
+  }
+#Fill in the values from the data
+AICs <- AIC_compare(LogLik = c(M1_results$loglik,M2_results$loglik,M3_results$loglik),
+                    k = c(M1_results$df,M2_results$df,M3_results$df))
+names(AICs) <- c('M1','M2','M3')
+AICs
+#>       M1       M2       M3 
+#> 179.5629 177.5618 175.5616
+#Lowest AIC is preferred -> M3 is the best model
+
+##Simulate islands
+#Simulate islands with the parameters estimated from the best model for the Galápagos bird data (takes a while to run, you can reduce number of replicates if you want)
+Galapagos_sims <- DAISIE_sim(
+  time = 4,
+  M = 1000,
+  pars = c(1.26, 1.146, Inf, 0.005,0),
+  replicates = 100,
+  plot_sims = FALSE)
+
+#Plot the species-through-time plots resulting from the simulations
+DAISIE_plot_sims(Galapagos_sims)
+
+#Comparison with bird data from the Azores islands
+data(Macaronesia_datalist)
+Azores <- Macaronesia_datalist[[1]]
+
+#Visualise Azores data
+DAISIE_plot_island(Azores)
+
+#Three of the species are extinct and only known from fossils
+#Simulate Azores with pre-identified ML parameters
+Azores_sims <- DAISIE_sim(
+  time = 6.3,
+  M = 300,
+  pars = c(0,1.053151832,Inf,0.052148979,0.512939011),
+  replicates = 100,
+  plot_sims = FALSE)
+
+#Plot the species-through-time plot for the Azores from the resulting from the simulations
+DAISIE_plot_sims(Azores_sims)
 
 
 
