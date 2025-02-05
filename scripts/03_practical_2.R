@@ -19,22 +19,29 @@ rm(list = ls())
 #There have been 5 colonizations. Count in the tree made in R.
 
 ##How many radiations have occurred on Jamaica?
-#There have been 2 radiations. There are 2 clades which are recent with multiple species.
+#There have been 2 radiations. There are 2 clades with recent cladogenesis.
 
 ##What are the rates of colonisation, speciation and extinction for Insula in Jamaica?
-#
+#The outcomes have been taken from model 3 as that was found as the best model via AIC
+#Colonization = gamma = 0.02762404
+#Speciation = lambda_c = 6.76418
+#Speciation = lambda_a = 0
+#Extinction = mu = 8.775854
 
 ##Is there evidence for diversity-dependence in the Insula species of Jamaica?
-#
+#No, there is no evidence for diversity dependence. Diversity dependence is indicated by the carrying capacity K and that variable is infinite in the best model (M3).
 
 ##Is there evidence for equilibrium dynamics on the island of Jamaica?
-#
+#Yes, there is evidence since the number of species over time is stable in the simulation. A plateau is shown in the graph for both the endemic and non-endemic species. The dynamics consist of speciation and extinction and if the the number of species is stable, the dynamics are in equilibrium.
 
 ##How has the diversity of Insula on Jamaica changed through time (according to DAISIE simulations)?
-#
+#The diversity of Insula on Jamaica showed a very quick increase in the first 1 million years, after which the endemic diversity stabilizes around 10 species. The diversity of the non-endemic species is stable around 3 species.
 
 ##Modify one or two parameters of your choice and run simulations again under those parameters. How does this affect the simulations? Describe.
-#
+#Option 1: low colonization / regular extinction -> equilibrium
+#Option 2: high colonization / low extinction -> increase in diversity
+#Option 3: low colonization / high extinction -> decrease in diversity
+#Base the answer on the outcomes of these 3 simulations shown at the bottom of this script.
 
 
 ######################################################
@@ -254,6 +261,39 @@ jamaica_sims <- DAISIE_sim(
 
 #Plot the species-through-time plots resulting from the simulations
 DAISIE_plot_sims(jamaica_sims)
+
+#Now lets try this for model 1, which includes diversity dependence
+jamaica_sims_1 <- DAISIE_sim(
+  time = 5,
+  M = 1000,
+  pars = c(5.90395,7.821783,2947851,0.02523945,3.19606),
+  replicates = 100,
+  plot_sims = FALSE)
+
+#Plot the species-through-time plots resulting from the simulations
+DAISIE_plot_sims(jamaica_sims_1)
+
+#Try the model with high colonization and low extinction
+jamaica_sims_growth <- DAISIE_sim(
+  time = 5,
+  M = 1000,
+  pars = c(1, 0.02, Inf, 0.05,0),
+  replicates = 100,
+  plot_sims = FALSE)
+
+#Plot the species-through-time plots resulting from the simulations
+DAISIE_plot_sims(jamaica_sims_growth)
+
+#Try the model with low colonization and high extinction
+jamaica_sims_loss <- DAISIE_sim(
+  time = 5,
+  M = 1000,
+  pars = c(1, 5, Inf, 0.02,0),
+  replicates = 100,
+  plot_sims = FALSE)
+
+#Plot the species-through-time plots resulting from the simulations
+DAISIE_plot_sims(jamaica_sims_loss)
 
 
 
