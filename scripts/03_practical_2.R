@@ -191,6 +191,7 @@ data_list[2]
 ################################################
 ####DAISIE
 DAISIE_plot_island(data_list)
+title(ylab = "Time (Mya)", xlab = "Clades", main = "Species through time")
 
 #Plot age versus diversity
 DAISIE_plot_age_diversity(data_list)
