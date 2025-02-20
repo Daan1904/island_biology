@@ -21,7 +21,7 @@ ggplot(data.frame(time1, y1), aes(x = time1, y = y1)) +
         legend.position = "none")
 
 #Save with ggplot in 600 dpi and with a white background
-ggsave("C:/Users/daank/OneDrive - University of Twente/Documents/Github/island_biology/plots/insular_woodiness.png", width = 6, height = 4, dpi = 600, bg = "white")
+ggsave("C:/Users/daank/OneDrive - University of Twente/Documents/Github/island_biology/plots/insular_woodiness.png", width = 6, height = 3.5, dpi = 600, bg = "white")
 
 
 ##Competitive strength with respect to native plant species
@@ -45,4 +45,4 @@ ggplot(data.frame(time2, y2), aes(x = time2, y = y2)) +
         legend.position = "none")
 
 #Save with ggplot in 600 dpi and with a white background
-ggsave("C:/Users/daank/OneDrive - University of Twente/Documents/Github/island_biology/plots/competitive_strength.png", width = 6, height = 4, dpi = 600, bg = "white")
+ggsave("C:/Users/daank/OneDrive - University of Twente/Documents/Github/island_biology/plots/competitive_strength.png", width = 6, height = 3.5, dpi = 600, bg = "white")
